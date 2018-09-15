@@ -1,6 +1,8 @@
 library(lme4)
+library(data.table)
+
 cd52.expr=read.table('cd52.txt')
-cd52.covs=read.table('cd52.covs.txt', sep=',',header=T)
+cd52.covs=fread('cd52.covs.txt', sep=',',header=T)
 
 #lets put all of our variables in here
 df=data.frame(cd52.covs, cd52=cd52.expr)
@@ -16,9 +18,12 @@ genos=as.numeric(genos)
 df.use$geno=genos[match(df.use$ind_cov, inds)]
 
 #lm is working.. thats a good sign! but it probably works tooooo well because we're not accounting for effects w/in an individual
-summary(lm(V1 ~ geno + batch_cov, data=df.use))
 
-summary(lmer(V1 ~ geno + (1|ind_cov), data=df.use))
+print('Linear Model')
+print(coef(summary(lm(V1 ~ geno , data=df.use))))
+
+print('Linear Mixed Model')
+print(coef(summary(lmer(V1 ~ geno + (1|ind_cov), data=df.use))))
 
 
 #try a number of group sizes for pseudobulk to see how t value changes this needs the raw counts.. maybe try this later
